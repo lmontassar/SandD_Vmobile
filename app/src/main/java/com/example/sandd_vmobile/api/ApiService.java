@@ -3,7 +3,6 @@ package com.example.sandd_vmobile.api;
 import com.example.sandd_vmobile.model.Auction;
 import com.example.sandd_vmobile.model.Images;
 import com.example.sandd_vmobile.model.LoginRequest;
-import com.example.sandd_vmobile.model.SignupRequest;
 import com.example.sandd_vmobile.model.User;
 
 import java.util.List;
@@ -38,6 +37,8 @@ public interface ApiService {
             @Part MultipartBody.Part image
 
     );
+    @POST("bids/add")
+    Call<ResponseBody> addBid(@Body RequestBody bid);
 
     @Multipart
     @POST("auth/upload-profile-image")

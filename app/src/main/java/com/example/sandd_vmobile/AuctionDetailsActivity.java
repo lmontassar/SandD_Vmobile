@@ -8,8 +8,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import okhttp3.ResponseBody;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
@@ -18,14 +25,22 @@ import com.example.sandd_vmobile.adapter.ImageSliderAdapter;
 import com.example.sandd_vmobile.api.ApiService;
 import com.example.sandd_vmobile.api.RetrofitClient;
 import com.example.sandd_vmobile.model.Auction;
+import com.example.sandd_vmobile.model.User;
+import com.example.sandd_vmobile.util.UserSerializer;
+import com.google.gson.Gson;
 
+
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+
 
 public class AuctionDetailsActivity extends AppCompatActivity {
     private ViewPager2 imageViewPager;
@@ -190,14 +205,84 @@ public class AuctionDetailsActivity extends AppCompatActivity {
     }
 
     private void placeBid() {
-        if (bidInput == null) return;
+        if (bidInput == null || auction == null) return;
 
         String bidStr = bidInput.getText().toString();
         if (!bidStr.isEmpty()) {
             float bidAmount = Float.parseFloat(bidStr);
-            // Implement bid placement logic here
-            Toast.makeText(this, "Bid placed: " + bidAmount + " TND",
-                    Toast.LENGTH_SHORT).show();
+            if (bidAmount <= auction.getCurrentPrice()) {
+                Toast.makeText(this, "Bid must be higher than the current price", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            long userId = getCurrentUserId();
+            if (userId == -1) {
+                Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Create the bid JSON structure
+            Map<String, Object> bidMap = new HashMap<>();
+            Map<String, Object> auctionMap = new HashMap<>();
+            Map<String, Object> buyerMap = new HashMap<>();
+
+            auctionMap.put("id", auction.getId());
+            buyerMap.put("id", userId);
+            bidMap.put("auction", auctionMap);
+            bidMap.put("buyer", buyerMap);
+            bidMap.put("amount", bidAmount);
+
+            // Convert the Map to a JSON string
+            Gson gson = new Gson();
+            String bidJson = gson.toJson(bidMap);
+
+            // Create RequestBody
+            RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), bidJson);
+
+            apiService.addBid(requestBody).enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    if (response.isSuccessful()) {
+                        auction.setCurrentPrice(bidAmount);
+                        updateUI(auction);
+                        bidInput.setText("");
+                        Toast.makeText(AuctionDetailsActivity.this, "Bid placed successfully", Toast.LENGTH_SHORT).show();
+                    } else {
+                        JSONObject  errorBody = new JSONObject();
+                        if (response.errorBody() != null) {
+                            try {
+                                errorBody =new JSONObject(response.errorBody().string()) ;
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            } catch (JSONException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+
+                        try {
+                            System.out.println("Error response: " + response.code() + " " + errorBody.getString("error"));
+                            Toast.makeText(AuctionDetailsActivity.this, "Error placing bid: " + errorBody.getString("error") , Toast.LENGTH_LONG).show();
+
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    System.out.println("Network error: " + t.getMessage());
+                    Toast.makeText(AuctionDetailsActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+    }
+    private long getCurrentUserId() {
+        User currentUser = UserSerializer.loadUser(this);
+        if (currentUser != null) {
+            return currentUser.getId();
+        } else {
+            return -1;
         }
     }
 

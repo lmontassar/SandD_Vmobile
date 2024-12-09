@@ -36,7 +36,7 @@ public class ImageSliderAdapter extends RecyclerView.Adapter<ImageSliderAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull ImageViewHolder holder, int position) {
-        String imageUrl = "http://192.168.0.129:8089/api/images/upload/auction/" + imageUrls.get(position);
+        String imageUrl = "http://192.168.1.5:8089/api/images/upload/auction/" + imageUrls.get(position);
         Glide.with(context)
                 .load(imageUrl)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)

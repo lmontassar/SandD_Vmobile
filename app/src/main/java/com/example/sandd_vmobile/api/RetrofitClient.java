@@ -1,6 +1,4 @@
 package com.example.sandd_vmobile.api;
-
-import de.hdodenhof.circleimageview.BuildConfig;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -8,7 +6,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient { // Replace with your actual backend URL
     private static Retrofit retrofit = null;
-    static String baseUrl = "http://192.168.0.129:8089/api/";
+    static String baseUrl = "http://192.168.1.5:8089/api/";
 
     public static ApiService getApiService() {
         if (retrofit == null) {

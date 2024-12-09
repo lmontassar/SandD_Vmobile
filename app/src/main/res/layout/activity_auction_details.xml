@@ -162,7 +162,8 @@
                 android:inputType="numberDecimal"
                 android:paddingHorizontal="16dp"
                 android:textColor="@color/text_primary"
-                android:textColorHint="@color/text_secondary" />
+                android:textColorHint="@color/text_secondary"
+                app:cardCornerRadius="12dp"/>
 
             <Button
                 android:id="@+id/placeBidButton"
