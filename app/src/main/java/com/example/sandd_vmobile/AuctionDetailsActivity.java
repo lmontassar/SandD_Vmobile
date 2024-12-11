@@ -136,8 +136,11 @@ public class AuctionDetailsActivity extends AppCompatActivity {
     private void setSellerImage(String imageUrl) {
         if (sellerImage != null) {
             if (imageUrl != null && !imageUrl.isEmpty()) {
+                if(imageUrl.charAt(0)=='/'){
+                    imageUrl = "http://192.168.1.5:8089"+imageUrl;
+                }
                 Glide.with(this)
-                        .load("http://192.168.0.129:8089/api/user/upload/avatar/" + imageUrl)
+                        .load(imageUrl)
                         .diskCacheStrategy(DiskCacheStrategy.ALL)
                         .placeholder(R.drawable.placeholder_image)
                         .error(R.drawable.placeholder_image)
