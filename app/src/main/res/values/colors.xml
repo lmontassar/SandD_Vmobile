@@ -9,5 +9,6 @@
     <color name="dark_background">#1A1D21</color>
     <color name="white">#FFFFFF</color>
     <color name="gray">#808080</color>
-    <color name="blue">#1E90FF</color> <!-- Added Blue Color -->
+    <color name="blue">#1E90FF</color>
+    <color name="purple_500">#673AB7</color> <!-- Added Blue Color -->
 </resources>

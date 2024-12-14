@@ -18,10 +18,26 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 public interface ApiService {
-    @POST("user/login")
+    @POST("user/login-phone")
     Call<ResponseBody> login(@Body LoginRequest loginRequest);
+
+    @GET("user/get/{id}")
+    Call<User> getUser(@Path("id") Long userId);
+
+    @Multipart
+    @PUT("user/update/{id}")
+    Call<User> editProfile(
+            @Path("id") Long id,
+            @Part("username") RequestBody username,
+            @Part("email") RequestBody email,
+            @Part("password") RequestBody password,
+            @Part("phoneNumber") RequestBody phoneNumber,
+            @Part("address") RequestBody address,
+            @Part MultipartBody.Part image
+    );
 
     @Multipart
     @POST("user/signup")

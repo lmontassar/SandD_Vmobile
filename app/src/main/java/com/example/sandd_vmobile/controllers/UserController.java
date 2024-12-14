@@ -112,21 +112,23 @@ public class UserController {
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     try {
-                        String rawResponse = response.body().string();
+                        if (response.body() != null) {
+                            String rawResponse = response.body().string();
+                            Gson gson = new Gson();
+                            LoginResponse loginResponse = gson.fromJson(rawResponse, LoginResponse.class);
 
-                        Gson gson = new Gson();
-                        LoginResponse loginResponse = gson.fromJson(rawResponse, LoginResponse.class);
-
-                        if (loginResponse != null && loginResponse.getUser() != null && loginResponse.getJwt() != null) {
-                            UserSerializer.saveUser(context, loginResponse.getUser());
-                            // Save JWT token
-                            context.getSharedPreferences("Auth", Context.MODE_PRIVATE)
-                                    .edit()
-                                    .putString("jwt", loginResponse.getJwt())
-                                    .apply();
-                            callback.onSuccess("Login successful");
+                            if (loginResponse != null && loginResponse.getUser() != null && loginResponse.getJwt() != null) {
+                                UserSerializer.saveUser(context, loginResponse.getUser());
+                                context.getSharedPreferences("Auth", Context.MODE_PRIVATE)
+                                        .edit()
+                                        .putString("jwt", loginResponse.getJwt())
+                                        .apply();
+                                callback.onSuccess("Login successful");
+                            } else {
+                                callback.onFailure("Invalid login response");
+                            }
                         } else {
-                            callback.onFailure("Invalid login response");
+                            callback.onFailure("Empty response body");
                         }
                     } catch (IOException e) {
                         callback.onFailure("Error processing response: " + e.getMessage());
@@ -134,7 +136,16 @@ public class UserController {
                         callback.onFailure("Error parsing response: " + e.getMessage());
                     }
                 } else {
-                    callback.onFailure("Login failed: " + response.code() + " " + response.message());
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorResponse = response.errorBody().string();
+                            callback.onFailure("Login failed: " + errorResponse);
+                        } else {
+                            callback.onFailure("Login failed: Unknown error");
+                        }
+                    } catch (IOException e) {
+                        callback.onFailure("Error reading error response: " + e.getMessage());
+                    }
                 }
             }
 
@@ -143,6 +154,81 @@ public class UserController {
                 callback.onFailure("Network error: " + t.getMessage());
             }
         });
+    }
+
+
+
+    public void getUser(Long id, UserFetchCallback callback) {
+        Call<User> call = apiService.getUser(id);
+
+        // Perform an asynchronous request
+        call.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    callback.onSuccess(response.body());
+                } else {
+                    callback.onFailure("Failed to fetch user. Code: " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                callback.onFailure("Network error: " + t.getMessage());
+            }
+        });
+    }
+
+    // Create a callback interface to handle success or failure
+    public interface UserFetchCallback {
+        void onSuccess(User user);
+        void onFailure(String message);
+    }
+
+    public void editProfile(Long id, String username, String email, String password, String phoneNumber, String address, Uri imageUri, EditProfileCallback callback) {
+        MultipartBody.Part imagePart = null;
+
+        if (imageUri != null) {
+            try {
+                File file = new File(context.getCacheDir(), "profile_image.jpg");
+                compressImage(imageUri, file);
+                RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), file);
+                imagePart = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
+            } catch (IOException e) {
+                callback.onFailure("Error processing image: " + e.getMessage());
+                return;
+            }
+        }
+
+        RequestBody usernameBody = RequestBody.create(MediaType.parse("text/plain"), username);
+        RequestBody emailBody = RequestBody.create(MediaType.parse("text/plain"), email);
+        RequestBody passwordBody = RequestBody.create(MediaType.parse("text/plain"), password != null ? password : "");
+        RequestBody phoneBody = RequestBody.create(MediaType.parse("text/plain"), phoneNumber);
+        RequestBody addressBody = RequestBody.create(MediaType.parse("text/plain"), address);
+
+        apiService.editProfile(id, usernameBody, emailBody, passwordBody, phoneBody, addressBody, imagePart)
+                .enqueue(new Callback<User>() {
+                    @Override
+                    public void onResponse(Call<User> call, Response<User> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            UserSerializer.saveUser(context,(User)response.body());
+                            callback.onSuccess("Profile updated successfully");
+                        } else {
+                            callback.onFailure("Failed to update profile: " + response.message());
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<User> call, Throwable t) {
+                        callback.onFailure("Network error: " + t.getMessage());
+                    }
+                });
+    }
+
+    public interface EditProfileCallback {
+        void onSuccess(String message);
+
+        void onFailure(String message);
     }
 
     public interface LoginCallback {

@@ -1,12 +1,13 @@
 package com.example.sandd_vmobile.util;
 
 import android.content.Context;
+
+import com.example.sandd_vmobile.controllers.UserController;
 import com.example.sandd_vmobile.model.User;
 import java.io.*;
 
 public class UserSerializer {
     private static final String FILE_NAME = "user_data.ser";
-
     public static void saveUser(Context context, User user) {
         try {
             File file = new File(context.getFilesDir(), FILE_NAME); // Full path

@@ -160,4 +160,22 @@ public class User implements Serializable {
     public String getImageUrl() {
         return imageUrl;
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", role='" + role + '\'' +
+                ", firstname='" + firstname + '\'' +
+                ", lastname='" + lastname + '\'' +
+                ", amount=" + amount +
+                ", phoneNumber=" + phoneNumber +
+                ", address='" + address + '\'' +
+                ", createdAt='" + createdAt + '\'' +
+                ", status='" + status + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                '}';
+    }
 }

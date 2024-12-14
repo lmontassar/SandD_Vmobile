@@ -1,7 +1,5 @@
 package com.example.sandd_vmobile.fragments;
 
-import static android.content.Intent.getIntent;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,49 +14,63 @@ import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.example.sandd_vmobile.EditProfileActivity;
 import com.example.sandd_vmobile.LogInActivity;
 import com.example.sandd_vmobile.R;
+import com.example.sandd_vmobile.controllers.UserController;
 import com.example.sandd_vmobile.model.User;
 import com.example.sandd_vmobile.util.UserSerializer;
 
 public class ProfileFragment extends Fragment {
     private Button logout;
-    private TextView firstname;
-    private TextView lastname;
+    private TextView fullName;
+    private TextView email;
     private TextView amount;
     private ImageView image;
+    private Button edit;
     private User user;
     private Context context;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        logout = view.findViewById(R.id.Logout);
-        firstname = view.findViewById(R.id.firstname);
-        lastname = view.findViewById(R.id.lastname);
+        UserController userController = new UserController(getContext());
+        logout = view.findViewById(R.id.logout);
+        fullName = view.findViewById(R.id.fullName);
+        email = view.findViewById(R.id.email);
         amount = view.findViewById(R.id.amount);
         image = view.findViewById(R.id.profile);
-        user = (User) UserSerializer.loadUser(getContext());
-        if (user != null) {
-            firstname.setText(user.getFirstname());
-            lastname.setText(user.getLastname());
-            String imageUrl = user.getImageUrl();
-            System.out.println(imageUrl);
-            if(imageUrl.charAt(0)=='/'){
-                imageUrl = "http://192.168.1.5:8089"+imageUrl;
+        edit = view.findViewById(R.id.editLink);
+
+        Long id = ((User) UserSerializer.loadUser(getContext())).getId();
+        user = new User();
+
+        // Fetch user data asynchronously
+        userController.getUser(id, new UserController.UserFetchCallback() {
+            @Override
+            public void onSuccess(User u) {
+                // Update the UI with the user data
+                user = u;
+                UserSerializer.saveUser(getContext(),u);
+                requireActivity().runOnUiThread(() -> updateUI(user));
             }
 
-            // Set the amount
-            amount.setText((int) user.getAmount() + " TND");
+            @Override
+            public void onFailure(String message) {
+                requireActivity().runOnUiThread(() ->
+                        email.setText("Error fetching user: " + message)
+                );
+            }
+        });
 
-            // Load the profile image
-            Glide.with(this)
-                    .load(imageUrl)
-                    .diskCacheStrategy(DiskCacheStrategy.ALL) // Cache the image
-                    .placeholder(R.drawable.defaul_profile) // Optional: Add a placeholder image
-                    .error(R.drawable.defaul_profile) // Optional: Add an error image
-                    .into(image); // Load into ImageView
-        }
+        // Edit profile button listener
+        edit.setOnClickListener(v -> {
+            Intent intent = new Intent(requireContext(), EditProfileActivity.class);
+            startActivity(intent);
+        });
+
+        // Logout button listener
         logout.setOnClickListener(v -> {
             if (getActivity() != null) {
                 UserSerializer.clearUser(getActivity());
@@ -70,5 +82,29 @@ public class ProfileFragment extends Fragment {
         });
 
         return view;
+    }
+
+    private void updateUI(User user) {
+        if (user != null) {
+            fullName.setText(user.getFirstname() + " " + user.getLastname());
+            email.setText(user.getEmail());
+
+            // Handle the image URL
+            String imageUrl = user.getImageUrl();
+            if (imageUrl != null && imageUrl.charAt(0) == '/') {
+                imageUrl = "http://192.168.1.5:8089" + imageUrl;
+            }
+
+            // Set the amount
+            amount.setText(user.getAmount() + " TND");
+
+            // Load the profile image
+            Glide.with(this)
+                    .load(imageUrl)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL) // Cache the image
+                    .placeholder(R.drawable.defaul_profile) // Optional: Add a placeholder image
+                    .error(R.drawable.defaul_profile) // Optional: Add an error image
+                    .into(image);
+        }
     }
 }
