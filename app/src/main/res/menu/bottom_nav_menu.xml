@@ -6,7 +6,7 @@
         android:title="Auctions"/>
     <item
         android:id="@+id/navigation_sell"
-        android:icon="@drawable/ic_clock"
+        android:icon="@drawable/ic_sell"
         android:title="Sell"/>
     <item
         android:id="@+id/navigation_profile"

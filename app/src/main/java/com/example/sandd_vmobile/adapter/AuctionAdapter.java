@@ -106,8 +106,8 @@ public class AuctionAdapter extends RecyclerView.Adapter<AuctionAdapter.AuctionV
             price.setText(String.format(Locale.getDefault(), "%d TND", (int)auction.getCurrentPrice()));
             participationPrice.setText(String.format(Locale.getDefault(), "%dTND", (int)auction.getParticipationPrice()));
 
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
-            dateTime.setText(sdf.format(auction.getEndTime()));
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault());
+            dateTime.setText(auction.getEndTime());
             System.out.println("ahla w sahla "+auction.getImageUrls());
             // Load the first image if available
             if (auction.getImageUrls() != null && !auction.getImageUrls().isEmpty()) {

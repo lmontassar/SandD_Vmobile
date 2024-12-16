@@ -8,15 +8,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import okhttp3.ResponseBody;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.bumptech.glide.Glide;
@@ -29,18 +20,27 @@ import com.example.sandd_vmobile.model.User;
 import com.example.sandd_vmobile.util.UserSerializer;
 import com.google.gson.Gson;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class AuctionDetailsActivity extends AppCompatActivity {
     private ViewPager2 imageViewPager;
@@ -98,9 +98,6 @@ public class AuctionDetailsActivity extends AppCompatActivity {
         if (imageViewPager != null) {
             imageSliderAdapter = new ImageSliderAdapter(this, imageUrls);
             imageViewPager.setAdapter(imageSliderAdapter);
-
-            ImageSliderAdapter thumbnailAdapter = new ImageSliderAdapter(this, imageUrls);
-
         }
     }
 
@@ -118,7 +115,7 @@ public class AuctionDetailsActivity extends AppCompatActivity {
 
         if (auction.getSeller() != null) {
             if (sellerName != null) sellerName.setText(auction.getSeller().getUsername());
-            memberSince.setText(auction.getSeller().getCreatedAt());
+            updateMemberSince(auction.getSeller().getCreatedAt());
             setSellerImage(auction.getSeller().getImageUrl());
         } else {
             if (sellerName != null) sellerName.setText("N/A");
@@ -136,8 +133,8 @@ public class AuctionDetailsActivity extends AppCompatActivity {
     private void setSellerImage(String imageUrl) {
         if (sellerImage != null) {
             if (imageUrl != null && !imageUrl.isEmpty()) {
-                if(imageUrl.charAt(0)=='/'){
-                    imageUrl = "http://192.168.1.5:8089"+imageUrl;
+                if (imageUrl.charAt(0) == '/') {
+                    imageUrl = "http://192.168.1.5:8089" + imageUrl;
                 }
                 Glide.with(this)
                         .load(imageUrl)
@@ -151,13 +148,13 @@ public class AuctionDetailsActivity extends AppCompatActivity {
         }
     }
 
-
     private void updateMemberSince(String createdAt) {
         if (memberSince == null) return;
 
         if (createdAt != null && !createdAt.isEmpty()) {
             try {
-                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US);
+                inputFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
                 Date date = inputFormat.parse(createdAt);
                 if (date != null) {
                     SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault());
@@ -181,12 +178,25 @@ public class AuctionDetailsActivity extends AppCompatActivity {
         Runnable timerRunnable = new Runnable() {
             @Override
             public void run() {
-                long timeRemaining = auction.getEndTime().getTime() - System.currentTimeMillis();
-                if (timeRemaining > 0) {
-                    updateTimer(timeRemaining);
-                    timerHandler.postDelayed(this, 1000);
-                } else {
-                    auctionEndTimeText.setText("Auction ended");
+                try {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+                    sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+                    Date endDate = sdf.parse(auction.getEndTime());
+
+                    if (endDate != null) {
+                        long timeRemaining = endDate.getTime() - System.currentTimeMillis();
+                        if (timeRemaining > 0) {
+                            updateTimer(timeRemaining);
+                            timerHandler.postDelayed(this, 1000);
+                        } else {
+                            auctionEndTimeText.setText("Auction ended");
+                        }
+                    } else {
+                        auctionEndTimeText.setText("Invalid end time");
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    auctionEndTimeText.setText("Error parsing end time");
                 }
             }
         };
@@ -224,7 +234,6 @@ public class AuctionDetailsActivity extends AppCompatActivity {
                 return;
             }
 
-            // Create the bid JSON structure
             Map<String, Object> bidMap = new HashMap<>();
             Map<String, Object> auctionMap = new HashMap<>();
             Map<String, Object> buyerMap = new HashMap<>();
@@ -235,11 +244,9 @@ public class AuctionDetailsActivity extends AppCompatActivity {
             bidMap.put("buyer", buyerMap);
             bidMap.put("amount", bidAmount);
 
-            // Convert the Map to a JSON string
             Gson gson = new Gson();
             String bidJson = gson.toJson(bidMap);
 
-            // Create RequestBody
             RequestBody requestBody = RequestBody.create(MediaType.parse("application/json"), bidJson);
 
             apiService.addBid(requestBody).enqueue(new Callback<ResponseBody>() {
@@ -251,24 +258,7 @@ public class AuctionDetailsActivity extends AppCompatActivity {
                         bidInput.setText("");
                         Toast.makeText(AuctionDetailsActivity.this, "Bid placed successfully", Toast.LENGTH_SHORT).show();
                     } else {
-                        JSONObject  errorBody = new JSONObject();
-                        if (response.errorBody() != null) {
-                            try {
-                                errorBody =new JSONObject(response.errorBody().string()) ;
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            } catch (JSONException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }
-
-                        try {
-                            System.out.println("Error response: " + response.code() + " " + errorBody.getString("error"));
-                            Toast.makeText(AuctionDetailsActivity.this, "Error placing bid: " + errorBody.getString("error") , Toast.LENGTH_LONG).show();
-
-                        } catch (JSONException e) {
-                            throw new RuntimeException(e);
-                        }
+                        handleBidError(response);
                     }
                 }
 
@@ -280,13 +270,27 @@ public class AuctionDetailsActivity extends AppCompatActivity {
             });
         }
     }
+
+    private void handleBidError(Response<ResponseBody> response) {
+        JSONObject errorBody = new JSONObject();
+        if (response.errorBody() != null) {
+            try {
+                errorBody = new JSONObject(response.errorBody().string());
+                String errorMessage = errorBody.optString("error", "Unknown error occurred");
+                System.out.println("Error response: " + response.code() + " " + errorMessage);
+                Toast.makeText(AuctionDetailsActivity.this, "Error placing bid: " + errorMessage, Toast.LENGTH_LONG).show();
+            } catch (IOException | JSONException e) {
+                e.printStackTrace();
+                Toast.makeText(AuctionDetailsActivity.this, "Error processing server response", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Toast.makeText(AuctionDetailsActivity.this, "Error placing bid", Toast.LENGTH_LONG).show();
+        }
+    }
+
     private long getCurrentUserId() {
         User currentUser = UserSerializer.loadUser(this);
-        if (currentUser != null) {
-            return currentUser.getId();
-        } else {
-            return -1;
-        }
+        return currentUser != null ? currentUser.getId() : -1;
     }
 
     @Override
@@ -295,3 +299,4 @@ public class AuctionDetailsActivity extends AppCompatActivity {
         timerHandler.removeCallbacksAndMessages(null);
     }
 }
+

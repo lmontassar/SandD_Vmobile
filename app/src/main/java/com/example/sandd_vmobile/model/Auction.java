@@ -15,8 +15,8 @@ public class Auction implements Serializable {
     private float startPrice;
     private float currentPrice;
     private float weight;
-    private Date startTime;
-    private Date endTime;
+    private String startTime;
+    private String endTime;
     private Status status;
     private List<String> imageUrls;
 
@@ -58,13 +58,31 @@ public class Auction implements Serializable {
     public float getWeight() { return weight; }
     public void setWeight(float weight) { this.weight = weight; }
 
-    public Date getStartTime() { return startTime; }
-    public void setStartTime(Date startTime) { this.startTime = startTime; }
+    public String getStartTime() { return startTime; }
+    public void setStartTime(String startTime) { this.startTime = startTime; }
 
-    public Date getEndTime() { return endTime; }
-    public void setEndTime(Date endTime) { this.endTime = endTime; }
+    public String getEndTime() { return endTime; }
+    public void setEndTime(String endTime) { this.endTime = endTime; }
 
     public Status getStatus() { return status; }
     public void setStatus(Status status) { this.status = status; }
+
+    @Override
+    public String toString() {
+        return "Auction{" +
+                "id=" + id +
+                ", seller=" + seller +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", participationPrice=" + participationPrice +
+                ", startPrice=" + startPrice +
+                ", currentPrice=" + currentPrice +
+                ", weight=" + weight +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                ", status=" + status +
+                ", imageUrls=" + imageUrls +
+                '}';
+    }
 }
 

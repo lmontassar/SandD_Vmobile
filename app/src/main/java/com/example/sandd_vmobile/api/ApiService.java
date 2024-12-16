@@ -63,6 +63,10 @@ public interface ApiService {
     @GET("images/auction/{id}")
     Call<List<Images>> getAuctionImages(@Path("id") Long auctionId);
 
+    @Multipart
+    @POST("images/add")
+    Call<Images> uploadImage(@Part MultipartBody.Part file, @Query("auctionId") Long auctionId);
+
     @GET("auction/all")
     Call<List<Auction>> getAllAuctions();
 
@@ -83,4 +87,11 @@ public interface ApiService {
 
     @PUT("auction/cancel/{id}")
     Call<Void> cancelAuction(@Path("id") Long auctionId);
+
+    @Multipart
+    @POST("images/add")
+    Call<Images> uploadAuctionImage(
+        @Part("auctionId") RequestBody auctionId,
+        @Part MultipartBody.Part file
+    );
 }
