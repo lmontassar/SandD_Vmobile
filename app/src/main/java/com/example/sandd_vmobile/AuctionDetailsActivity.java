@@ -182,13 +182,19 @@ public class AuctionDetailsActivity extends AppCompatActivity {
                     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
                     sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
                     Date endDate = sdf.parse(auction.getEndTime());
-
+                    Long userId = UserSerializer.loadUser(getApplicationContext()).getId();
+                    if(userId.equals(auction.getSeller().getId()) ){
+                        bidInput.setEnabled(false);
+                        placeBidButton.setEnabled(false);
+                    }
                     if (endDate != null) {
                         long timeRemaining = endDate.getTime() - System.currentTimeMillis();
                         if (timeRemaining > 0) {
                             updateTimer(timeRemaining);
                             timerHandler.postDelayed(this, 1000);
                         } else {
+                            bidInput.setEnabled(false);
+                            placeBidButton.setEnabled(false);
                             auctionEndTimeText.setText("Auction ended");
                         }
                     } else {
