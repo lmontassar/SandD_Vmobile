@@ -92,7 +92,7 @@ public class ProfileFragment extends Fragment {
             // Handle the image URL
             String imageUrl = user.getImageUrl();
             if (imageUrl != null && imageUrl.charAt(0) == '/') {
-                imageUrl = "http://192.168.1.5:8089" + imageUrl;
+                imageUrl = "http://192.168.1.2:8089" + imageUrl;
             }
 
             // Set the amount

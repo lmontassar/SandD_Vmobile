@@ -111,7 +111,7 @@ public class AuctionAdapter extends RecyclerView.Adapter<AuctionAdapter.AuctionV
             System.out.println("ahla w sahla "+auction.getImageUrls());
             // Load the first image if available
             if (auction.getImageUrls() != null && !auction.getImageUrls().isEmpty()) {
-                String imageUrl = "http://192.168.1.5:8089/api/images/upload/auction/" + auction.getImageUrls().get(0);
+                String imageUrl = "http://192.168.1.2:8089/api/images/upload/auction/" + auction.getImageUrls().get(0);
 
                 Glide.with(itemView.getContext())
                         .load(imageUrl)

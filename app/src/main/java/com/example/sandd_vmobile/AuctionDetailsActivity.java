@@ -74,7 +74,6 @@ public class AuctionDetailsActivity extends AppCompatActivity {
     private void init() {
         imageViewPager = findViewById(R.id.imageViewPager);
         titleText = findViewById(R.id.titleText);
-        subtitleText = findViewById(R.id.subtitleText);
         currentBidText = findViewById(R.id.currentBidText);
         auctionEndTimeText = findViewById(R.id.auctionEndTimeText);
         participationPriceText = findViewById(R.id.participationPriceText);
@@ -109,7 +108,6 @@ public class AuctionDetailsActivity extends AppCompatActivity {
         }
 
         if (titleText != null) titleText.setText(auction.getTitle());
-        if (subtitleText != null) subtitleText.setText(auction.getDescription());
         if (currentBidText != null) currentBidText.setText(String.format(Locale.getDefault(), "%d TND", (int)auction.getCurrentPrice()));
         if (participationPriceText != null) participationPriceText.setText(String.format(Locale.getDefault(), "%d TND", (int)auction.getParticipationPrice()));
 
