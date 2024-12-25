@@ -19,12 +19,13 @@ public class Auction implements Serializable {
     private String endTime;
     private Status status;
     private List<String> imageUrls;
-
     public enum Status {
         OPEN,
         CLOSED,
         CANCELED
     }
+    // GETTERs AND SETTERs
+
 
     public List<String> getImageUrls() {
         return imageUrls;

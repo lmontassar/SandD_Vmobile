@@ -1,5 +1,6 @@
 package com.example.sandd_vmobile;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.Button;
@@ -91,7 +92,7 @@ public class AuctionDetailsActivity extends AppCompatActivity {
     }
 
     private void setupApiService() {
-        apiService = RetrofitClient.getApiService();
+        apiService = RetrofitClient.getApiService(this);
     }
 
     private void setupImageSlider(List<String> imageUrls) {
@@ -131,10 +132,13 @@ public class AuctionDetailsActivity extends AppCompatActivity {
     }
 
     private void setSellerImage(String imageUrl) {
+        String baseUrl = this.getString(R.string.baseUrl);
+        baseUrl=baseUrl.substring(0,baseUrl.lastIndexOf('/'));
+
         if (sellerImage != null) {
             if (imageUrl != null && !imageUrl.isEmpty()) {
                 if (imageUrl.charAt(0) == '/') {
-                    imageUrl = "http://192.168.1.5:8089" + imageUrl;
+                    imageUrl = baseUrl + imageUrl;
                 }
                 Glide.with(this)
                         .load(imageUrl)

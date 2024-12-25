@@ -1,5 +1,6 @@
 package com.example.sandd_vmobile.adapter;
 
+import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,17 +26,20 @@ public class AuctionAdapter extends RecyclerView.Adapter<AuctionAdapter.AuctionV
 
     private List<Auction> auctions;
     private List<Auction> auctionsFiltered;
+    Context c ;
 
-    public AuctionAdapter(List<Auction> auctions) {
+    public AuctionAdapter(List<Auction> auctions,Context c) {
         this.auctions = auctions;
         this.auctionsFiltered = auctions;
+        this.c = c;
+
     }
 
     @NonNull
     @Override
     public AuctionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_auction, parent, false);
-        return new AuctionViewHolder(view);
+        return new AuctionViewHolder(view,this.c);
     }
 
     @Override
@@ -90,9 +94,10 @@ public class AuctionAdapter extends RecyclerView.Adapter<AuctionAdapter.AuctionV
         ImageView carImage;
         TextView carName, price, participationPrice, dateTime;
         Button viewAuctionButton;
-
-        AuctionViewHolder(@NonNull View itemView) {
+        Context context;
+        AuctionViewHolder(@NonNull View itemView, Context context) {
             super(itemView);
+            this.context = context;
             carImage = itemView.findViewById(R.id.carImage);
             carName = itemView.findViewById(R.id.carName);
             price = itemView.findViewById(R.id.price);
@@ -111,7 +116,8 @@ public class AuctionAdapter extends RecyclerView.Adapter<AuctionAdapter.AuctionV
             System.out.println("ahla w sahla "+auction.getImageUrls());
             // Load the first image if available
             if (auction.getImageUrls() != null && !auction.getImageUrls().isEmpty()) {
-                String imageUrl = "http://192.168.1.5:8089/api/images/upload/auction/" + auction.getImageUrls().get(0);
+                String baseUrl =  this.context.getString(com.example.sandd_vmobile.R.string.baseUrl);
+                String imageUrl = baseUrl+"/images/upload/auction/" + auction.getImageUrls().get(0);
 
                 Glide.with(itemView.getContext())
                         .load(imageUrl)

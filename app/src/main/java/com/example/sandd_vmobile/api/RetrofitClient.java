@@ -1,4 +1,8 @@
 package com.example.sandd_vmobile.api;
+import android.content.Context;
+
+import com.example.sandd_vmobile.R;
+
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
@@ -6,9 +10,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient { // Replace with your actual backend URL
     private static Retrofit retrofit = null;
-    static String baseUrl = "http://192.168.1.5:8089/api/";
 
-    public static ApiService getApiService() {
+    public static ApiService getApiService(Context c) {
+        String baseUrl = c.getString(com.example.sandd_vmobile.R.string.baseUrl);
+
         if (retrofit == null) {
             HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
             loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);

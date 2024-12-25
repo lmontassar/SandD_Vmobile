@@ -88,6 +88,9 @@ public interface ApiService {
     @PUT("auction/cancel/{id}")
     Call<Void> cancelAuction(@Path("id") Long auctionId);
 
+    @GET("auction/get/notifications/user/{id}")
+    Call<List<String>> getNotificationsByUser(@Path("id") Long userId);
+    
     @Multipart
     @POST("images/add")
     Call<Images> uploadAuctionImage(

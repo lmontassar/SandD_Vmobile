@@ -38,8 +38,10 @@ public class AuctionController {
 
     public AuctionController(Context context) {
         this.context = context;
-        this.apiService = RetrofitClient.getApiService();
+        this.apiService = RetrofitClient.getApiService(context);
     }
+
+
     public void uploadImages(Long auctionId, List<Uri> images, ImagesUploadCallback callback) {
         AtomicInteger successCount = new AtomicInteger(0);
         AtomicInteger failureCount = new AtomicInteger(0);

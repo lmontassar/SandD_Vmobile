@@ -1,5 +1,6 @@
 package com.example.sandd_vmobile.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,11 +37,11 @@ public class AuctionsFragment extends Fragment {
         searchView = view.findViewById(R.id.searchView);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        auctionAdapter = new AuctionAdapter(new ArrayList<>());
+        auctionAdapter = new AuctionAdapter(new ArrayList<>(),getContext());
         recyclerView.setAdapter(auctionAdapter);
 
         setupSearchView();
-        setupApiService();
+        setupApiService(getContext());
         loadAuctions();
 
         return view;
@@ -61,8 +62,8 @@ public class AuctionsFragment extends Fragment {
         });
     }
 
-    private void setupApiService() {
-        this.apiService = RetrofitClient.getApiService();
+    private void setupApiService(Context c) {
+        this.apiService = RetrofitClient.getApiService(c);
     }
 
     private void loadAuctions() {

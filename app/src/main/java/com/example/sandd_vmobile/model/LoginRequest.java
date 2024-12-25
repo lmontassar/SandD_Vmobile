@@ -8,6 +8,7 @@ public class LoginRequest {
         this.username = username;
         this.password = password;
     }
+    //GETTERs AND SETTERs
 
 
     public String getUsername() {

@@ -17,6 +17,8 @@ import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -32,8 +34,47 @@ public class UserController {
 
     public UserController(Context context) {
         this.context = context;
-        this.apiService = RetrofitClient.getApiService();
+        this.apiService = RetrofitClient.getApiService(context);
     }
+
+    public void getNotificationsByUser(Long userId, Callback<List<String>> callback) {
+        // Make the API call directly
+        apiService.getNotificationsByUser(userId).enqueue(new Callback<List<String>>() {
+            @Override
+            public void onResponse(Call<List<String>> call, Response<List<String>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    // Pass the response body (List<String>) to the callback
+                    callback.onResponse(call, response);
+                } else {
+                    // Handle API errors
+                    callback.onFailure(call, new Throwable("API response error"));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<String>> call, Throwable t) {
+                // Pass the failure to the original callback
+                callback.onFailure(call, t);
+            }
+        });
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     public String validateInputs(String username, String firstname, String lastname, String phone, String address, String email, String password, String confirmPassword, Uri imageUri) {
         if (TextUtils.isEmpty(username) || TextUtils.isEmpty(firstname) || TextUtils.isEmpty(lastname) ||
