@@ -131,7 +131,6 @@ public class AuctionDetailsActivity extends AppCompatActivity {
 
     private void setSellerImage(String imageUrl) {
         String baseUrl = this.getString(R.string.baseUrl);
-        baseUrl=baseUrl.substring(0,baseUrl.lastIndexOf('/'));
 
         if (sellerImage != null) {
             if (imageUrl != null && !imageUrl.isEmpty()) {

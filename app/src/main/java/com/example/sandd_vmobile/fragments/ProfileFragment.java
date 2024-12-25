@@ -93,7 +93,6 @@ public class ProfileFragment extends Fragment {
             String imageUrl = user.getImageUrl();
             if (imageUrl != null && imageUrl.charAt(0) == '/') {
                 String baseUrl = getContext().getString(R.string.baseUrl);
-                baseUrl=baseUrl.substring(0,baseUrl.lastIndexOf('/'));
                 imageUrl = baseUrl + imageUrl;
             }
 

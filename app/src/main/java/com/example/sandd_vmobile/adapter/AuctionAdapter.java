@@ -117,7 +117,7 @@ public class AuctionAdapter extends RecyclerView.Adapter<AuctionAdapter.AuctionV
             // Load the first image if available
             if (auction.getImageUrls() != null && !auction.getImageUrls().isEmpty()) {
                 String baseUrl =  this.context.getString(com.example.sandd_vmobile.R.string.baseUrl);
-                String imageUrl = baseUrl+"/images/upload/auction/" + auction.getImageUrls().get(0);
+                String imageUrl = baseUrl+"/api/images/upload/auction/" + auction.getImageUrls().get(0);
 
                 Glide.with(itemView.getContext())
                         .load(imageUrl)

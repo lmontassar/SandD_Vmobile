@@ -21,14 +21,14 @@ import retrofit2.http.Path;
 import retrofit2.http.Query;
 
 public interface ApiService {
-    @POST("user/login-phone")
+    @POST("/api/user/login-phone")
     Call<ResponseBody> login(@Body LoginRequest loginRequest);
 
-    @GET("user/get/{id}")
+    @GET("/api/user/get/{id}")
     Call<User> getUser(@Path("id") Long userId);
 
     @Multipart
-    @PUT("user/update/{id}")
+    @PUT("/api/user/update/{id}")
     Call<User> editProfile(
             @Path("id") Long id,
             @Part("username") RequestBody username,
@@ -40,7 +40,7 @@ public interface ApiService {
     );
 
     @Multipart
-    @POST("user/signup")
+    @POST("/api/user/signup")
     Call<User> signup(
 
             @Part("username") RequestBody username,
@@ -53,46 +53,46 @@ public interface ApiService {
             @Part MultipartBody.Part image
 
     );
-    @POST("bids/add")
+    @POST("/api/bids/add")
     Call<ResponseBody> addBid(@Body RequestBody bid);
 
     @Multipart
-    @POST("auth/upload-profile-image")
+    @POST("/api/auth/upload-profile-image")
     Call<String> uploadProfileImage(@Part MultipartBody.Part image);
 
-    @GET("images/auction/{id}")
+    @GET("/api/images/auction/{id}")
     Call<List<Images>> getAuctionImages(@Path("id") Long auctionId);
 
     @Multipart
-    @POST("images/add")
+    @POST("/api/images/add")
     Call<Images> uploadImage(@Part MultipartBody.Part file, @Query("auctionId") Long auctionId);
 
-    @GET("auction/all")
+    @GET("/api/auction/all")
     Call<List<Auction>> getAllAuctions();
 
-    @GET("auction/user/{id}")
+    @GET("/api/auction/user/{id}")
     Call<List<Auction>> getAuctionsByUser(@Path("id") Long userId);
 
-    @POST("auction/add")
+    @POST("/api/auction/add")
     Call<Auction> addAuction(@Body Auction auction);
 
-    @GET("auction/{id}")
+    @GET("/api/auction/{id}")
     Call<Auction> getAuction(@Path("id") Long auctionId);
 
-    @PUT("auction/close/{id}")
+    @PUT("/api/auction/close/{id}")
     Call<Void> closeAuction(@Path("id") Long auctionId);
 
-    @PUT("auction/open/{id}")
+    @PUT("/api/auction/open/{id}")
     Call<Void> openAuction(@Path("id") Long auctionId);
 
-    @PUT("auction/cancel/{id}")
+    @PUT("/api/auction/cancel/{id}")
     Call<Void> cancelAuction(@Path("id") Long auctionId);
 
-    @GET("auction/get/notifications/user/{id}")
+    @GET("/api/auction/get/notifications/user/{id}")
     Call<List<String>> getNotificationsByUser(@Path("id") Long userId);
     
     @Multipart
-    @POST("images/add")
+    @POST("/api/images/add")
     Call<Images> uploadAuctionImage(
         @Part("auctionId") RequestBody auctionId,
         @Part MultipartBody.Part file
